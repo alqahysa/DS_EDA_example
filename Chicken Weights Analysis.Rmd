@@ -1,0 +1,79 @@
+---
+title: "Analysis of Chicken Weights in R"
+author: "Sarah AlQahtani"
+date: "10/7/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE)
+library(tidyverse)
+library(DT)
+```
+### Description of chickwts dataset
+An experiment was conducted to measure and compare the effectiveness of various feed supplements on the growth rate of chickens.
+
+# Analysis of Chicken Weights {.tabset .tabset-fade .tabset-pills}
+## Part 1: Exploratory Data Analysis
+```{r}
+knitr::kable(summary(chickwts))
+```
+
+```{r}
+glimpse(chickwts)
+```
+A data frame with 71 observations on the following 2 variables.
+
+weight: a numeric variable giving the chick weight.
+
+feed: a categorical variable giving the feed type.
+
+## Part 2: Descriptive Statistics
+```{r}
+datatable(chickwts %>%
+  group_by(feed) %>%
+    summarise(No_Obs=length(feed),
+              Avrage_Weight=mean(weight),
+              Std_Weight=sd(weight)))
+```
+
+## Part 3: Plots
+```{r}
+ggplot(chickwts,aes(feed,weight))+
+  geom_boxplot()
+```
+
+```{r}
+ggplot (chickwts, aes(feed, weight)) +
+  geom_jitter(width = 0.3) +
+  stat_summary(fun.data = mean_sdl, 
+               fun.args = list(mult = 1), 
+               col = "red")
+  
+```
+
+## Part 4: Inferential Statistics
+### The one-way ANOVA summary:
+```{r}
+knitr::kable(anova(lm(weight ~ feed, data = chickwts)))
+```
+ANOVA test gives us a p-value way below the .05 threshold.
+
+
+### Tukey’s Post-hoc test:
+```{r}
+datatable(TukeyHSD(aov(weight~feed,data =chickwts))$feed)
+```
+In Tukey’s Post-hoc test, we find significant differences in these pairs of variables:
+
+* horsebean-casein
+* linseed-casein
+* soybean-casein
+* meatmeal-horsebean
+* sunflower-horsebean
+* sunflower-linseed
+* andsunflower-soybean
+* linseed-casein
+
+### End tabset
+
